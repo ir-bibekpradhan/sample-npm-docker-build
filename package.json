@@ -1,0 +1,24 @@
+{
+  "name": "sample-npm-docker",
+  "version": "1.0.0",
+  "description": "Sample project for GitHub Actions + Docker",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "lodash": "^4.17.21",
+    "dayjs": "^1.11.10",
+    "chalk": "^5.3.0",
+    "uuid": "^9.0.1",
+    "bcrypt": "^5.1.0",
+    "sharp": "^0.33.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0",
+    "@types/node": "^20.10.0",
+    "@types/lodash": "^4.14.200"
+  }
+}
