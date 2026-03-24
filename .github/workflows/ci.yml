@@ -30,6 +30,9 @@ jobs:
       - name: Build (host)
         run: npm run build
 
+      - name: Build Docker image
+        run: docker build -t sample-npm-docker .
+
       # ============= InvisiRisk Cleanup =============
       - name: Cleanup PSE
         if: always()
@@ -38,5 +41,3 @@ jobs:
           cleanup: "true"
       # ============= InvisiRisk Cleanup End =============
 
-    #  - name: Build Docker image
-    #    run: docker build -t sample-npm-docker .
