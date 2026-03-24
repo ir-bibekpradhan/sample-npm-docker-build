@@ -10,6 +10,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # ============= InvisiRisk Setup =============
+      - name: Setup PSE
+        uses: invisirisk/pse-action@latest
+        with:
+          app_token: ${{secrets.IR_API_KEY}}
+      # ============= InvisiRisk Setup End =============
       - name: Checkout repo
         uses: actions/checkout@v4
 
@@ -23,6 +29,14 @@ jobs:
 
       - name: Build (host)
         run: npm run build
+
+      # ============= InvisiRisk Cleanup =============
+      - name: Cleanup PSE
+        if: always()
+        uses: invisirisk/pse-action@latest
+        with:
+          cleanup: "true"
+      # ============= InvisiRisk Cleanup End =============
 
     #  - name: Build Docker image
     #    run: docker build -t sample-npm-docker .
