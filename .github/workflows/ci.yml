@@ -32,7 +32,7 @@ jobs:
         run: npm run build
 
       - name: Build Docker image
-        run: BUILDKIT=1 docker build -t sample-npm-docker --build-arg BUILDKIT_SYNTAX=kkisalaya/pse-frontend:1.4.3 --secret id=pse-ca,src=/etc/ssl/certs/pse.pem  --build-arg PSE_PROXY=http://${PSE_PROXY_IP}:3128 .
+        run: BUILDKIT=1 docker build -t sample-npm-docker --build-arg BUILDKIT_SYNTAX=kkisalaya/pse-frontend:1.4.3 --secret id=pse-ca,src=/etc/ssl/certs/pse.pem  --build-arg PSE_PROXY=http://${PSE_PROXY_IP}:3128 --build-arg PSE_SKIP_OS_PKG_PROXY=false .
 
       # ============= InvisiRisk Cleanup =============
       - name: Cleanup PSE
