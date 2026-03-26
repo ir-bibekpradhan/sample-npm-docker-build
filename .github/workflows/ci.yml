@@ -4,48 +4,43 @@ on:
   push:
     branches: [ main ]
   pull_request:
-  workflow_dispatch: 
 
 jobs:
-  build-and-run:
+  build:
     runs-on: ubuntu-latest
 
     steps:
       # ============= InvisiRisk Setup =============
       - name: Setup PSE
-        uses: ir-kkisalaya/pse-action@1.0
+        uses: ir-kkisalaya/pse-action@1.1
         with:
-          app_token: ${{ secrets.IR_API_KEY }}
+          app_token: ${{secrets.IR_API_KEY}}
           mode: 'docker-intercept'
+          debug: true
       # ============= InvisiRisk Setup End =============
-
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Build Docker image
-        run: |
-          DOCKER_BUILDKIT=1 docker build -t sample-npm-docker \
-            --build-arg BUILDKIT_SYNTAX=kkisalaya/pse-frontend:1.4.3 \
-            --secret id=pse-ca,src=/etc/ssl/certs/pse.pem \
-            --build-arg PSE_PROXY=http://${{ env.PSE_PROXY_IP }}:3128 \
-            --build-arg PSE_SKIP_OS_PKG_PROXY=false .
-        env:
-          PSE_PROXY_IP: ${{ env.PSE_PROXY_IP }}
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-      - name: Run Docker container
-        run: |
-          docker run --rm \
-            -e HTTP_PROXY=http://${{ env.PSE_PROXY_IP }}:3128 \
-            -e HTTPS_PROXY=http://${{ env.PSE_PROXY_IP }}:3128 \
-            -e NO_PROXY=localhost,127.0.0.1 \
-            sample-npm-docker
-        env:
-          PSE_PROXY_IP: ${{ env.PSE_PROXY_IP }}
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build (host)
+        run: npm run build
+
+      - name: Build Docker image
+        run: BUILDKIT=1 docker build -t sample-npm-docker --build-arg BUILDKIT_SYNTAX=kkisalaya/pse-frontend:1.4.3 --secret id=pse-ca,src=/etc/ssl/certs/pse.pem  --build-arg PSE_PROXY=http://${PSE_PROXY_IP}:3128 --build-arg PSE_SKIP_OS_PKG_PROXY=false .
 
       # ============= InvisiRisk Cleanup =============
       - name: Cleanup PSE
         if: always()
-        uses: ir-kkisalaya/pse-action@1.0
+        uses: ir-kkisalaya/pse-action@1.1
         with:
           cleanup: "true"
+          debug: true
       # ============= InvisiRisk Cleanup End =============
+
