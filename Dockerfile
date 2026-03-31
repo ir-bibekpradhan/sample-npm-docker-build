@@ -1,7 +1,7 @@
-# Base image
-FROM node:20-alpine
+# ---------------- Stage 1: Builder ----------------
+FROM node:20-alpine AS builder
 
-# Install OS-level dependencies (Alpine uses apk instead of apt)
+# Install OS-level dependencies (Alpine uses apk)
 RUN apk add --no-cache \
       python3 \
       make \
@@ -26,6 +26,13 @@ COPY . .
 
 # Build the application
 RUN npm run build
+
+# ---------------- Stage 2: Final ----------------
+FROM node:20-alpine AS final
+WORKDIR /app
+
+# Copy built artifacts from builder stage
+COPY --from=builder /app /app
 
 # Default command
 CMD ["npm", "start"]
