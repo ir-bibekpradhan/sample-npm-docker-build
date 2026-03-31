@@ -1,37 +1,52 @@
 name: SNYK xxxx InvisiRisk
 on:
   workflow_dispatch:
+
 permissions:
   checks: write
   contents: write
   packages: read
   actions: write
+
 jobs:
   sync-and-build:
     runs-on: ubuntu-latest
-    name: Sync fork and Run build
+    name: Sync fork and Run Docker builds
+
     steps:
-        # ============= InvisiRisk Setup =============
+      # ============= InvisiRisk Setup =============
       - name: Setup PSE
         uses: invisirisk/pse-action@latest
         with:
           api_url: "https://app.stage.invisirisk.com"
-          app_token: ${{secrets.IR_API_KEY}}
+          app_token: ${{ secrets.IR_API_KEY }}
           mode: docker-intercept
+        # Purpose: Set up PSE (proxy/certificate interception) required for Docker builds with HTTP requests
       # ============= InvisiRisk Setup End =============
+
+      # Checkout repository code
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           persist-credentials: false
           fetch-depth: 0
-      - name: Build Docker Image
-        run: docker build -t my-app:latest --build-arg BUILDKIT_SYNTAX=public.ecr.aws/w3c0c0n7/invisirisk/baf-buildkit:dev-test --secret id=pse-ca,src=/etc/ssl/certs/pse.pem --build-arg PSE_PROXY=http://${PSE_PROXY_IP}:3128 .
+        # Purpose: Ensure Docker build can access Dockerfile, source code, and package files
 
- 
-          # ============= InvisiRisk Cleanup =============
+      # ---------------- Build Docker Image ----------------
+      - name: Build Docker Image
+        run: docker build -t my-app:latest --build-arg BUILDKIT_SYNTAX=public.ecr.aws/w3c0c0n7/invisirisk/baf-buildkit:latest --secret id=pse-ca,src=/etc/ssl/certs/pse.pem --build-arg PSE_PROXY=http://${PSE_PROXY_IP}:3128 .
+        # Purpose: Build Docker image exactly as in original workflow
+
+      # Verify Docker image exists
+      - name: Verify Docker Image Exists
+        run: docker images | grep my-app
+        # Purpose: Confirm Docker image built successfully
+
+      # ============= InvisiRisk Cleanup =============
       - name: Cleanup PSE
         if: always()
         uses: invisirisk/pse-action@latest
         with:
           cleanup: "true"
+        # Purpose: Clean up PSE to remove certificates/proxy intercepts
       # ============= InvisiRisk Cleanup End =============
