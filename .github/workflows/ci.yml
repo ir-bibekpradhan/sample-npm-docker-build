@@ -1,4 +1,4 @@
-name: SNYK xxxx InvisiRisk
+name: SNYK xxxx InvisiRisk - Alpine HTTP
 on:
   workflow_dispatch:
 
@@ -9,9 +9,9 @@ permissions:
   actions: write
 
 jobs:
-  sync-and-build:
+  build-alpine-http:
     runs-on: ubuntu-latest
-    name: Sync fork and Run Docker builds
+    name: Build Docker Image on Alpine with HTTP Request
 
     steps:
       # ============= InvisiRisk Setup =============
@@ -21,7 +21,7 @@ jobs:
           api_url: "https://app.stage.invisirisk.com"
           app_token: ${{ secrets.IR_API_KEY }}
           mode: docker-intercept
-        # Purpose: Set up PSE (proxy/certificate interception) required for Docker builds with HTTP requests
+        # Purpose: Set up PSE proxy/certificate interception
       # ============= InvisiRisk Setup End =============
 
       # Checkout repository code
@@ -30,17 +30,17 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
-        # Purpose: Ensure Docker build can access Dockerfile, source code, and package files
+        # Purpose: Access Dockerfile and source code
 
       # ---------------- Build Docker Image ----------------
       - name: Build Docker Image
         run: docker build -t my-app:latest --build-arg BUILDKIT_SYNTAX=public.ecr.aws/w3c0c0n7/invisirisk/baf-buildkit:dev-test --secret id=pse-ca,src=/etc/ssl/certs/pse.pem --build-arg PSE_PROXY=http://${PSE_PROXY_IP}:3128 .
-        # Purpose: Build Docker image exactly as in original workflow
+        # Purpose: Build Docker image exactly as in original workflow, now using Alpine base
 
       # Verify Docker image exists
       - name: Verify Docker Image Exists
         run: docker images | grep my-app
-        # Purpose: Confirm Docker image built successfully
+        # Purpose: Confirm build succeeded
 
       # ============= InvisiRisk Cleanup =============
       - name: Cleanup PSE
@@ -48,5 +48,5 @@ jobs:
         uses: invisirisk/pse-action@develop
         with:
           cleanup: "true"
-        # Purpose: Clean up PSE to remove certificates/proxy intercepts
+        # Purpose: Remove PSE proxy and certificates
       # ============= InvisiRisk Cleanup End =============
