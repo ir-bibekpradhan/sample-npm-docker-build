@@ -1,3 +1,4 @@
+# Base image
 FROM node:20-bullseye
 
 # Install OS-level dependencies (important for native npm modules)
@@ -11,20 +12,22 @@ RUN apt-get update && \
       libvips-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Testing HTTP requests to valid URLs
-RUN curl -sS https://jsonplaceholder.typicode.com/posts/1
 WORKDIR /app
+
+# Optional HTTP request (can be uncommented if needed)
+RUN curl -sS https://jsonplaceholder.typicode.com/posts/1
 
 # Copy dependency files first
 COPY package*.json tsconfig.json ./
 
-# Install npm dependencies (this will be heavy now)
+# Install Node dependencies
 RUN npm install
 
-# Copy source
+# Copy source code
 COPY . .
 
-# Build inside container
+# Build the application
 RUN npm run build
 
+# Default command
 CMD ["npm", "start"]
