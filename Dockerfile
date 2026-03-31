@@ -1,20 +1,18 @@
 # Base image
-FROM node:20-bullseye
+FROM node:20-alpine
 
-# Install OS-level dependencies (important for native npm modules)
-RUN apt-get update && \
-    apt-get install -y \
+# Install OS-level dependencies (Alpine uses apk instead of apt)
+RUN apk add --no-cache \
       python3 \
       make \
       g++ \
       curl \
       git \
-      libvips-dev \
-    && rm -rf /var/lib/apt/lists/*
+      vips-dev
 
 WORKDIR /app
 
-# Optional HTTP request (can be uncommented if needed)
+# HTTP request to verify network inside container
 RUN curl -sS https://jsonplaceholder.typicode.com/posts/1
 
 # Copy dependency files first
