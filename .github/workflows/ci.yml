@@ -10,7 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      IR_API_URL: "https://app.dev.invisirisk.com"
+      IR_API_URL: "https://app.stage.invisirisk.com"
 
     steps:
       # ============= InvisiRisk Setup =============
