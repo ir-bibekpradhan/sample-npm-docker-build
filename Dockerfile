@@ -9,6 +9,7 @@ RUN apt-get update && \
       curl \
       git \
       libvips-dev \
+      tiemu \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
