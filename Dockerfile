@@ -1,16 +1,14 @@
 # ---------------- Stage 1: Builder ----------------
-FROM node:20-bullseye AS builder
+FROM node:20-alpine AS builder
 
-# Install OS-level dependencies
-RUN apt-get update && \
-    apt-get install -y \
-      python3 \
-      make \
-      g++ \
-      curl \
-      git \
-      libvips-dev \
-    && rm -rf /var/lib/apt/lists/*
+# Install OS-level dependencies (Alpine equivalents)
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    curl \
+    git \
+    vips-dev
 
 WORKDIR /app
 
@@ -30,7 +28,7 @@ COPY . .
 RUN npm run build
 
 # ---------------- Stage 2: Final ----------------
-FROM node:20-bullseye AS final
+FROM node:20-alpine AS final
 
 WORKDIR /app
 
